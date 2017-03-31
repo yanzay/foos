@@ -1,84 +1,76 @@
-class Team {
-  constructor() {
-    this.goalkeeper = null;
-    this.forward = null;
-  }
+var express = require('express');
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database(':memory:');
+var bodyParser = require('body-parser');
+var room = require('./room');
 
-  randomAdd(player) {
-    if (Math.random() < 0.5) {
-      if (!this.goalkeeper) {
-        this.goalkeeper = player;
-        return true;
-      }
+const app = express();
+const port = 3000;
+
+db.serialize(function() {
+  db.run("CREATE TABLE players (id INTEGER PRIMARY KEY NOT NULL, name TEXT NOT NULL);");
+});
+
+app.use(bodyParser.json());
+
+app.get("/players", function(req, res) {
+  db.all("SELECT id, name FROM players;", function(err, players) {
+    if (err) {
+      console.error("Can't load players: %s", err.toString())
+      res.sendStatus(500)
+      return
     }
-    if (!this.forward) {
-      this.forward = player;
-      return true;
+    res.json(players)
+  })
+});
+
+app.post("/players", function(req, res) {
+  let name = req.body.name;
+  if (name) {
+    db.run("INSERT INTO players (name) VALUES (?);", name);
+    res.sendStatus(201);
+    return
+  }
+  res.sendStatus(400);
+})
+
+app.post("/game", function(req, res) {
+  try {
+    room.randomGame()
+    res.sendStatus(200)
+  } catch(e) {
+    console.error(e)
+    res.sendStatus(500)
+  }
+})
+
+app.get("/room", function(req, res) {
+  res.json(room);
+})
+
+app.post("/room/players", function(req, res) {
+  db.all("SELECT id, name FROM players WHERE id = ?", req.body.id, function(err, players) {
+    if (err) {
+      console.error("Can't load players: %s", err.toString())
+      res.sendStatus(500)
+      return
     }
-    if (!this.goalkeeper) {
-      this.goalkeeper = player;
-      return true;
+    if (players.length == 0) {
+      console.error("Can't find player with id %d", req.body.id)
+      res.sendStatus(404)
+      return
     }
-    return false;
-  }
-}
+    room.add(players[0])
+    res.sendStatus(200)
+  })
+})
 
-class Game {
-  constructor() {
-    this.team1 = new Team();
-    this.team2 = new Team();
-  }
+app.delete("/room/players", function(req, res) {
+  room.delete(req.body.id)
+})
 
-  randomAdd(player) {
-    if (Math.random() < 0.5) {
-      if (this.team1.randomAdd(player)) {
-        return true;
-      }
-    }
-    if (this.team2.randomAdd(player)) {
-      return true;
-    }
-    return this.team1.randomAdd(player);
-  }
-}
 
-class Room {
-  constructor() {
-    this.players = [];
-    this.queue = [];
-  }
-
-  add(player) {
-    this.queue.push(player);
-  }
-
-  randomGame() {
-    if (this.queue.length < 4) {
-      throw new Error("At least 4 players required for the game");
-    }
-
-    let game = new Game();
-    for (let i = 0; i < 4; i++) {
-      let nextIndex = Math.floor(Math.random() * this.queue.length);
-      let player = this.queue.splice(nextIndex, 1)[0];
-      game.randomAdd(player);
-    }
-    return game
-  }
-}
-
-class Player {
-  constructor(name) {
-    this.name = name;
-  }
-}
-
-let room = new Room();
-room.add("Joshua");
-room.add("Robert");
-room.add("Raymond");
-room.add("Brian");
-room.add("Peter");
-let game = room.randomGame();
-console.log(game);
+app.listen(port, function() {
+  console.log('Listening on :%d', port)
+})
 
