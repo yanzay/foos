@@ -22,8 +22,16 @@ class Team {
     return false;
   }
 
+  swap() {
+    [this.goalkeeper, this.forward] = [this.forward, this.goalkeeper]
+  }
+
   leave() {
     return [this.goalkeeper, this.forward]
+  }
+
+  full() {
+    return !!this.goalkeeper && !!this.forward
   }
 }
 
@@ -74,6 +82,11 @@ class Room {
     this.game = new Game()
   }
 
+  reset() {
+    this.queue = []
+    this.game = new Game()
+  }
+
   add(player) {
     this.queue.push(player)
   }
@@ -109,12 +122,18 @@ class Room {
   nextGame(winner) {
     if (winner === "team1") {
       this.game.team1.swap()
-      this.game.team2.goalkeeper = this.queue.shift()
       this.game.team2.forward = this.queue.shift()
+      this.game.team2.goalkeeper = this.queue.shift()
+      if (this.queue.length % 2 === 0) {
+        this.game.team2.swap()
+      }
     } else {
       this.game.team2.swap()
-      this.game.team1.goalkeeper = this.queue.shift()
       this.game.team1.forward = this.queue.shift()
+      this.game.team1.goalkeeper = this.queue.shift()
+      if (this.queue.length % 2 === 0) {
+        this.game.team1.swap()
+      }
     }
   }
 }
