@@ -75,7 +75,7 @@ describe('room', function() {
     });
 
     it('should swap losers when 6 in room', function() {
-      room.reset()
+      room.reset();
       room.add("player1");
       room.add("player2");
       room.add("player3");
@@ -95,6 +95,24 @@ describe('room', function() {
       expect(game.team1.goalkeeper).to.equal(goalkeeper1)
       expect(game.team2.forward).to.equal(goalkeeper2)
       expect(game.team2.goalkeeper).to.equal(forward2)
+    });
+
+    it('loser goalkeeper should return as forward after 2 games when 7 in room', function() {
+      room.reset();
+      room.add("player1");
+      room.add("player2");
+      room.add("player3");
+      room.add("player4");
+      room.add("player5");
+      room.add("player6");
+      room.add("player7");
+      let game = room.randomGame();
+      let goalkeeper = game.team2.goalkeeper;
+      for (let i = 0; i < 3; i++) {
+        room.endGame("team1");
+        room.nextGame("team1");
+      }
+      expect(game.team2.forward).to.equal(goalkeeper);
     });
   });
 });
