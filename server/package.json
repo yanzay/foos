@@ -4,6 +4,7 @@
   "description": "Foosball Game Manager",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "mocha"
   },
   "author": "",
