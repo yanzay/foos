@@ -40,7 +40,7 @@ app.post("/game", function(req, res) {
     res.sendStatus(200)
   } catch(e) {
     console.error(e)
-    res.sendStatus(500)
+    res.status(422).json(e)
   }
 })
 
