@@ -31,7 +31,7 @@ class Team {
   }
 
   full() {
-    return !!this.goalkeeper && !!this.forward
+    return Boolean(this.goalkeeper) && Boolean(this.forward)
   }
 }
 
@@ -57,22 +57,8 @@ class Game {
     this.started = true;
   }
 
-  end(winner) {
-    if (winner === "team1") {
-      this._saveResults(this.team1, this.team2)
-    } else {
-      this._saveResults(this.team2, this.team1)
-    }
-    this.started = false
-  }
-
-  _saveResults(winTeam, loseTeam) {
-    let res = {
-      winGoalkeeper: winTeam.goalkeeper,
-      winForward: winTeam.forward,
-      loseGoalkeeper: loseTeam.goalkeeper,
-      loseForward: loseTeam.forward,
-    }
+  end() {
+    this.started = false;
   }
 }
 
@@ -92,7 +78,7 @@ class Room {
   }
 
   delete(playerId) {
-    this.queue = this.queue.filter((player) => { return player.id != playerId })
+    this.queue = this.queue.filter((player) => player.id !== playerId)
   }
 
   randomGame() {
@@ -109,7 +95,8 @@ class Room {
   }
 
   endGame(winner) {
-    var goalkeeper, forward;
+    let forward = null
+    let goalkeeper = null
     if (winner === "team1") {
       [goalkeeper, forward] = this.game.team2.leave()
     } else {
