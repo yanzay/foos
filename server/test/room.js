@@ -2,16 +2,18 @@ var expect = require('chai').expect
 var room = require('../room');
 
 describe('room', function() {
+  afterEach(function() {
+    room.reset()
+  });
+
   describe('room', function() {
     it('should return new room with game', function() {
-      room.reset()
       expect(room.game).to.be.ok
     });
   });
 
   describe('add()', function() {
     it('should add player to queue', function() {
-      room.reset()
       expect(room.queue).to.be.empty;
       room.add("player1");
       expect(room.queue).to.not.be.empty;
@@ -20,7 +22,6 @@ describe('room', function() {
 
   describe('randomGame()', function() {
     it('should start random game on 4 players', function() {
-      room.reset()
       expect(room.queue).to.be.empty;
       room.add("player1");
       room.add("player2");
@@ -36,7 +37,6 @@ describe('room', function() {
 
   describe('nextGame()', function() {
     it('should swap players in teams when 4 in room', function() {
-      room.reset()
       room.add("player1");
       room.add("player2");
       room.add("player3");
@@ -55,7 +55,6 @@ describe('room', function() {
     });
 
     it('should place "losing forward" to "goalkeeper" when 5 in room', function() {
-      room.reset()
       room.add("player1");
       room.add("player2");
       room.add("player3");
@@ -75,7 +74,6 @@ describe('room', function() {
     });
 
     it('should swap losers when 6 in room', function() {
-      room.reset();
       room.add("player1");
       room.add("player2");
       room.add("player3");
@@ -98,7 +96,6 @@ describe('room', function() {
     });
 
     it('loser goalkeeper should return as forward after 2 games when 7 in room', function() {
-      room.reset();
       room.add("player1");
       room.add("player2");
       room.add("player3");
