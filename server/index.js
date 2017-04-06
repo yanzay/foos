@@ -1,10 +1,12 @@
 var express = require('express');
+var cors = require('cors');
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database(':memory:');
 var bodyParser = require('body-parser');
 var room = require('./room');
 
 const app = express();
+app.use(cors());
 const port = 3000;
 
 db.serialize(function() {
