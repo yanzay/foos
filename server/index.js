@@ -10,7 +10,13 @@ app.use(cors());
 const port = 3000;
 
 db.serialize(function() {
-  db.run("CREATE TABLE players (id INTEGER PRIMARY KEY NOT NULL, name TEXT NOT NULL);");
+  const query = `
+  CREATE TABLE players (
+    id INTEGER PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL
+  );
+  `
+  db.run(query);
 });
 
 app.use(bodyParser.json());
@@ -22,14 +28,14 @@ app.use(bodyParser.json());
  * @apiSuccess {Number} players.id Player ID
  * @apiSuccess {String} players.name Player name
  */
-app.get("/players", function(req, res) {
+app.get("/players", (req, res) => {
   db.all("SELECT id, name FROM players;", function(err, players) {
     if (err) {
       console.error("Can't load players: %s", err.toString())
       res.sendStatus(500)
       return
     }
-    res.json({players: players})
+    res.json({players})
   })
 });
 
@@ -38,7 +44,7 @@ app.get("/players", function(req, res) {
  * @apiGroup Players
  * @apiParam {String} name Player name
  */
-app.post("/players", function(req, res) {
+app.post("/players", (req, res) => {
   let name = req.body.name;
   if (name) {
     db.run("INSERT INTO players (name) VALUES (?);", name);
@@ -52,11 +58,11 @@ app.post("/players", function(req, res) {
  * @api {post} /game Start a new Random Game
  * @apiGroup Game
  */
-app.post("/game", function(req, res) {
+app.post("/game", (req, res) => {
   try {
     room.randomGame()
     res.sendStatus(200)
-  } catch(e) {
+  } catch (e) {
     console.error(e)
     res.status(422).json(e)
   }
@@ -67,13 +73,14 @@ app.post("/game", function(req, res) {
  * @apiGroup Game
  * @apiParam {String} winner Winner team: "team1" or "team2"
  */
-app.post("/game/finish", function(req, res) {
+app.post("/game/finish", (req, res) => {
   let winner = req.body.winner
   if (winner !== "team1" && winner !== "team2") {
     return res.sendStatus(422)
   }
   room.endGame(req.body.winner)
   res.sendStatus(200)
+  return null
 })
 
 /**
@@ -81,13 +88,14 @@ app.post("/game/finish", function(req, res) {
  * @apiGroup Game
  * @apiParam {String} winner Winner team: "team1" or "team2"
  */
-app.post("/game/next", function(req, res) {
+app.post("/game/next", (req, res) => {
   let winner = req.body.winner
   if (winner !== "team1" && winner !== "team2") {
     return res.sendStatus(422)
   }
   room.nextGame(winner)
   res.sendStatus(200)
+  return null
 })
 
 /**
@@ -104,7 +112,7 @@ app.post("/game/next", function(req, res) {
  * @apiSuccess {Player} game.team2.goalkeeper Goalkeeper of the second team
  * @apiSuccess {Player} game.team2.forward Forward of the second team
  */
-app.get("/room", function(req, res) {
+app.get("/room", (req, res) => {
   res.json(room);
 })
 
@@ -113,14 +121,15 @@ app.get("/room", function(req, res) {
  * @apiGroup Room
  * @apiParam {Number} id Player ID
  */
-app.post("/room/players", function(req, res) {
-  db.all("SELECT id, name FROM players WHERE id = ?", req.body.id, function(err, players) {
+app.post("/room/players", (req, res) => {
+  const query = "SELECT id, name FROM players WHERE id = ?"
+  db.all(query, req.body.id, (err, players) => {
     if (err) {
       console.error("Can't load players: %s", err.toString())
       res.sendStatus(500)
       return
     }
-    if (players.length == 0) {
+    if (players.length === 0) {
       console.error("Can't find player with id %d", req.body.id)
       res.sendStatus(404)
       return
@@ -135,13 +144,13 @@ app.post("/room/players", function(req, res) {
  * @apiGroup Room
  * @apiParam id Player ID
  */
-app.delete("/room/players/:id", function(req, res) {
+app.delete("/room/players/:id", (req, res) => {
   room.delete(req.params.id)
   res.sendStatus(200)
 })
 
 
-app.listen(port, function() {
+app.listen(port, () => {
   console.log('Listening on :%d', port)
 })
 
