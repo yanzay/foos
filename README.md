@@ -24,4 +24,15 @@ npm test
 
 ## Client
 
-TODO
+### Install
+
+```
+cd foos/client
+npm install
+```
+
+### Usage
+
+```
+npm start
+```
