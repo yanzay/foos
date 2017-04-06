@@ -12,7 +12,8 @@
   "dependencies": {
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
-    "sqlite3": "^3.1.8"
+    "sqlite3": "^3.1.8",
+    "cors": "*"
   },
   "devDependencies": {
     "chai": "^3.5.0",
